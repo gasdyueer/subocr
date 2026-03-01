@@ -78,6 +78,10 @@ export interface DeduplicationConfig {
   contentSimilarityThreshold: number; // 内容相似度阈值（0-1）
   exactMatchRequired: boolean; // 是否要求完全匹配
   maxCacheSize: number; // 最大缓存条目数
+
+  // 新增字段（向后兼容，提供默认值）
+  mergeTimeWindows?: boolean; // 是否合并时间窗口，默认false
+  mergeStrategy?: 'union' | 'weighted' | 'best'; // 合并策略，默认'union'
 }
 
 export interface CorrectionRule {

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { Subtitle, OptimizationConfig } from '../types';
 import { OcrCorrector } from '../lib/ocr-corrector';
 import { SubtitleOptimizer } from '../lib/subtitle-optimizer';
+import { DeduplicationManager } from '../lib/deduplication';
 
 interface SubtitleState {
   subtitles: Subtitle[];
@@ -29,11 +30,13 @@ const defaultOptimizationConfig: OptimizationConfig = {
   enabled: true,
   deduplication: {
     enabled: true,
-    timeWindowMs: 2000,
-    hashSimilarityThreshold: 0.85,
-    contentSimilarityThreshold: 0.85,
-    exactMatchRequired: false,
-    maxCacheSize: 1000
+    timeWindowMs: 5000, // 5秒时间窗口，更适合检测重复
+    hashSimilarityThreshold: 0.95, // 图像哈希相似度阈值
+    contentSimilarityThreshold: 0.6, // 内容相似度阈值，降低以检测相似文本
+    exactMatchRequired: false, // 不要求完全匹配
+    maxCacheSize: 1000,
+    mergeTimeWindows: true, // 启用智能合并时间窗口
+    mergeStrategy: 'union' // 使用并集合并策略 'union' | 'weighted' | 'best'
   },
   correction: {
     enabled: true,
@@ -155,7 +158,13 @@ export const useSubtitleStore = create<SubtitleState>((set, get) => ({
         }));
       }
 
-      // 2. 应用字幕优化（合并、时间轴调整等）
+      // 2. 应用去重
+      if (optimizationConfig.deduplication.enabled) {
+        const deduplicationManager = new DeduplicationManager(optimizationConfig.deduplication);
+        result = deduplicationManager.deduplicateSubtitlesSync(result);
+      }
+
+      // 3. 应用字幕优化（合并、时间轴调整等）
       const optimizerConfig = {
         enabled: true,
         merging: optimizationConfig.merging,

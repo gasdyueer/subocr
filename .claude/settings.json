@@ -5,7 +5,9 @@
       "Bash(npm run build)",
       "Bash(xargs grep -l \"express\\\\|better-sqlite3\\\\|sqlite3\")",
       "Bash(xargs grep -l \"srt\\\\|SRT\\\\|subtitle\")",
-      "Bash(npx tsx test-ocr-rules.js)"
+      "Bash(npx tsx test-ocr-rules.js)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(node test-deduplication.js)"
     ]
   }
 }

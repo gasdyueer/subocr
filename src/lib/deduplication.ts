@@ -3,7 +3,7 @@
  * 支持基于时间戳、图像哈希和内容相似度的去重
  */
 
-import { DeduplicationConfig } from '../types';
+import { DeduplicationConfig, Subtitle } from '../types';
 
 export interface CacheEntry {
   id: string;
@@ -27,6 +27,8 @@ export class DeduplicationManager {
       contentSimilarityThreshold: 0.95, // 95%相似度
       exactMatchRequired: false, // 是否要求完全匹配
       maxCacheSize: 1000,
+      mergeTimeWindows: false, // 默认不合并时间窗口
+      mergeStrategy: 'union', // 默认并集策略
       ...config
     };
   }
@@ -129,21 +131,80 @@ export class DeduplicationManager {
     if (!text1 || !text2) {
       return 0;
     }
-    
+
     const normalized1 = text1.toLowerCase().trim();
     const normalized2 = text2.toLowerCase().trim();
-    
+
     if (normalized1 === normalized2) {
       return 1;
     }
-    
+
     // 简单相似度计算：共同字符比例
     const set1 = new Set(normalized1);
     const set2 = new Set(normalized2);
     const intersection = new Set([...set1].filter(x => set2.has(x)));
     const union = new Set([...set1, ...set2]);
-    
+
     return union.size > 0 ? intersection.size / union.size : 0;
+  }
+
+  /**
+   * 计算文本相似度（增强版） - 结合编辑距离和Jaccard相似度
+   */
+  private calculateTextSimilarityEnhanced(text1: string, text2: string): number {
+    // 预处理
+    const normalize = (text: string) =>
+      text.toLowerCase().replace(/[^\w\s]/g, '').trim();
+
+    const norm1 = normalize(text1);
+    const norm2 = normalize(text2);
+
+    // 完全相同
+    if (norm1 === norm2) return 1.0;
+
+    // 编辑距离相似度
+    const levenshteinDistance = this.computeLevenshteinDistance(norm1, norm2);
+    const maxLength = Math.max(norm1.length, norm2.length);
+    const editSimilarity = maxLength > 0 ? 1 - levenshteinDistance / maxLength : 0;
+
+    // Jaccard相似度（词集）
+    const words1 = new Set(norm1.split(/\s+/).filter(w => w.length > 0));
+    const words2 = new Set(norm2.split(/\s+/).filter(w => w.length > 0));
+    const intersection = new Set([...words1].filter(w => words2.has(w)));
+    const union = new Set([...words1, ...words2]);
+    const jaccardSimilarity = union.size > 0 ? intersection.size / union.size : 0;
+
+    // 组合相似度（编辑距离权重更高）
+    return editSimilarity * 0.7 + jaccardSimilarity * 0.3;
+  }
+
+  /**
+   * 计算Levenshtein编辑距离
+   */
+  private computeLevenshteinDistance(str1: string, str2: string): number {
+    const len1 = str1.length;
+    const len2 = str2.length;
+
+    // 创建二维数组
+    const matrix: number[][] = Array(len1 + 1).fill(null).map(() => Array(len2 + 1).fill(0));
+
+    // 初始化第一行和第一列
+    for (let i = 0; i <= len1; i++) matrix[i][0] = i;
+    for (let j = 0; j <= len2; j++) matrix[0][j] = j;
+
+    // 填充矩阵
+    for (let i = 1; i <= len1; i++) {
+      for (let j = 1; j <= len2; j++) {
+        const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1,     // 删除
+          matrix[i][j - 1] + 1,     // 插入
+          matrix[i - 1][j - 1] + cost // 替换
+        );
+      }
+    }
+
+    return matrix[len1][len2];
   }
 
   /**
@@ -366,13 +427,164 @@ export class DeduplicationManager {
    */
   updateConfig(newConfig: Partial<DeduplicationConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    
+
     // 如果最大缓存大小减小，移除多余的条目
     if (this.cache.size > this.config.maxCacheSize) {
       while (this.cache.size > this.config.maxCacheSize) {
         this.removeOldestEntry();
       }
     }
+  }
+
+  /**
+   * 批量去重字幕数组
+   * @param subtitles 字幕数组
+   * @returns 去重后的字幕数组
+   */
+  deduplicateSubtitles(subtitles: Subtitle[]): Subtitle[] {
+    if (!this.config.enabled || subtitles.length <= 1) {
+      return [...subtitles];
+    }
+
+    // 1. 按开始时间排序
+    const sorted = [...subtitles].sort((a, b) => a.startTime - b.startTime);
+    const toKeep: Subtitle[] = [];
+    const duplicateGroups: Subtitle[][] = [];
+
+    // 2. 检测重复项
+    for (let i = 0; i < sorted.length; i++) {
+      const current = sorted[i];
+      let isDuplicate = false;
+
+      // 检查是否与已保留的字幕重复
+      for (const kept of toKeep) {
+        if (this.isDuplicateSubtitle(current, kept)) {
+          isDuplicate = true;
+          // 找到对应的重复组
+          let groupFound = false;
+          for (const group of duplicateGroups) {
+            if (group[0] === kept) {
+              group.push(current);
+              groupFound = true;
+              break;
+            }
+          }
+          if (!groupFound) {
+            duplicateGroups.push([kept, current]);
+          }
+          break;
+        }
+      }
+
+      if (!isDuplicate) {
+        toKeep.push(current);
+      }
+    }
+
+    // 3. 智能合并时间窗口（如启用）
+    const mergeTimeWindows = this.config.mergeTimeWindows ?? false;
+    const mergeStrategy = this.config.mergeStrategy ?? 'union';
+
+    if (mergeTimeWindows && duplicateGroups.length > 0) {
+      return this.mergeDuplicateTimeWindows(toKeep, duplicateGroups, mergeStrategy);
+    }
+
+    return toKeep;
+  }
+
+  /**
+   * 判断两个字幕是否重复
+   */
+  private isDuplicateSubtitle(a: Subtitle, b: Subtitle): boolean {
+    // 1. 时间窗口检查
+    const timeDiff = Math.abs(a.startTime - b.startTime);
+    const timeWindowSec = this.config.timeWindowMs / 1000;
+    if (timeDiff > timeWindowSec) {
+      return false;
+    }
+
+    // 2. 完全匹配检查
+    if (a.text === b.text) {
+      return true;
+    }
+
+    // 3. 相似度检查（如果不要求完全匹配）
+    if (!this.config.exactMatchRequired) {
+      const similarity = this.calculateTextSimilarityEnhanced(a.text, b.text);
+      return similarity >= this.config.contentSimilarityThreshold;
+    }
+
+    return false;
+  }
+
+  /**
+   * 智能合并时间窗口
+   */
+  private mergeDuplicateTimeWindows(
+    keptSubtitles: Subtitle[],
+    duplicateGroups: Subtitle[][],
+    strategy: 'union' | 'weighted' | 'best'
+  ): Subtitle[] {
+    const merged: Subtitle[] = [...keptSubtitles];
+
+    for (const group of duplicateGroups) {
+      const primary = group[0]; // 第一个（已保留的）字幕
+      const duplicates = group.slice(1);
+      const allSubtitles = [primary, ...duplicates];
+
+      let mergedStartTime = primary.startTime;
+      let mergedEndTime = primary.endTime;
+      let mergedText = primary.text;
+
+      switch (strategy) {
+        case 'union':
+          // 取所有时间范围的并集
+          mergedStartTime = Math.min(...allSubtitles.map(s => s.startTime));
+          mergedEndTime = Math.max(...allSubtitles.map(s => s.endTime));
+          break;
+
+        case 'weighted':
+          // 基于文本长度加权平均（假设较长文本质量更高）
+          const totalLength = allSubtitles.reduce((sum, s) => sum + s.text.length, 0);
+          if (totalLength > 0) {
+            mergedStartTime = allSubtitles.reduce((sum, s) =>
+              sum + s.startTime * s.text.length, 0) / totalLength;
+            mergedEndTime = allSubtitles.reduce((sum, s) =>
+              sum + s.endTime * s.text.length, 0) / totalLength;
+          }
+          break;
+
+        case 'best':
+          // 选择文本最完整的字幕
+          const bestSubtitle = allSubtitles.reduce((best, current) =>
+            current.text.length > best.text.length ? current : best
+          );
+          mergedStartTime = bestSubtitle.startTime;
+          mergedEndTime = bestSubtitle.endTime;
+          mergedText = bestSubtitle.text;
+          break;
+      }
+
+      // 更新已保留的字幕
+      const index = merged.findIndex(s => s.id === primary.id);
+      if (index !== -1) {
+        merged[index] = {
+          ...primary,
+          startTime: mergedStartTime,
+          endTime: mergedEndTime,
+          text: mergedText
+        };
+      }
+    }
+
+    return merged;
+  }
+
+  /**
+   * 同步版本的批量去重（供同步函数调用）
+   */
+  deduplicateSubtitlesSync(subtitles: Subtitle[]): Subtitle[] {
+    return this.deduplicateSubtitles(subtitles);
   }
 }
 
