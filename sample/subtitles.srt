@@ -1,0 +1,339 @@
+1
+00:00,000 --> 00:01,000
+First, unzip the downloaded zip file and open the .blend file 00
+
+2
+00:01,000 --> 00:02,000
+First, unzip the downloaded zip file and open the .blend file 00
+
+3
+00:02,000 --> 00:03,000
+First, unzip the downloaded zip file and open the .blend file 00
+
+4
+00:04,000 --> 00:05,000
+First, unzip the downloaded zip file and open the .blend file 00
+
+5
+00:05,000 --> 00:06,000
+You will see rigs and models like this one
+
+6
+00:06,000 --> 00:07,000
+You will see rigs and models like this one
+
+7
+00:09,000 --> 00:10,000
+You will see rigs and models like this one
+
+8
+00:11,000 --> 00:12,000
+You will see rigs and models like this one
+
+9
+00:12,000 --> 00:13,000
+You will see rigs and models like this one
+
+10
+00:14,000 --> 00:15,000
+You will see rigs and models like this one
+
+11
+00:16,000 --> 00:17,000
+The collections in the left outline contain the models ro oobeontrolNo End
+
+12
+00:17,000 --> 00:18,000
+The collections in the left outline contain the models ro oobeontrolNo End
+
+13
+00:18,000 --> 00:19,000
+The collections in the left outline contain the models ro oobotroNo 0 Start
+
+14
+00:19,000 --> 00:20,000
+The collections in the left outline contain the models ro oobotroNo 0 Start
+
+15
+00:20,000 --> 00:21,000
+The collections in the left outliner contain the models nGotrolNlt Ctae
+
+16
+00:21,000 --> 00:22,000
+The collections in the left outliner contain the models bQontrolN@t Oa E 0 Cta
+
+17
+00:22,000 --> 00:23,000
+The collections in the left outliner contain the models bQontrolN@t Oa E 0 Cta
+
+18
+00:24,000 --> 00:25,000
+The collections in the left outliner contain the models bQontrolN@t Oa E 0 Cta
+
+19
+00:25,000 --> 00:26,000
+The collections in the left outliner contain the models bQontrolN@t E 0 Cta
+
+20
+00:26,000 --> 00:27,000
+The collections in the left outliner contain the models nQotroNo Ctae
+
+21
+00:27,000 --> 00:28,000
+The collections inthe left outliner contain the models ntrolNe Endn Ctae En
+
+22
+00:28,000 --> 00:29,000
+The collections in the left outliner contain the models eotroNo
+
+23
+00:29,000 --> 00:30,000
+The collections in the left outliner contain the models E roNo C
+
+24
+00:30,000 --> 00:31,000
+To control the rig, you need to switch to pose mode Endo
+
+25
+00:31,000 --> 00:32,000
+To control the rig, you need to switch to pose mode F
+
+26
+00:32,000 --> 00:33,000
+To control the rig, you need to switch to pose mode F
+
+27
+00:33,000 --> 00:34,000
+Finpers Grasp 0.000 Snapcildofco To control the rig, you need to switch to pose mode
+
+28
+00:34,000 --> 00:35,000
+FingersGrasp 0.000 Snapcildofco To control the rig, you need to switch to pose mode
+
+29
+00:35,000 --> 00:36,000
+FingersGrasp 0.000 SnapChildofo To control the rig, you need to switch to pose mode
+
+30
+00:36,000 --> 00:37,000
+Fingers Grasp 0.000 taSnapChild of.oo To control the rig, you need to switch to pose mode d
+
+31
+00:37,000 --> 00:38,000
+FingersGrasp 0.000 taSnapChildof.o To control the rig, you need to switch to pose mode 4 od
+
+32
+00:38,000 --> 00:39,000
+FingersGrasp 0.000 taSnapChildof.o To control the rig, you need to switch to pose mode 4 od
+
+33
+00:39,000 --> 00:40,000
+Fingers Grasp 0.000 Eesnap Child of.o To control the rig, you need to switch to pose mode d
+
+34
+00:40,000 --> 00:41,000
+Fingers Grasp 0.000 Eesnap Child of.o To control the rig, you need to switch to pose mode d
+
+35
+00:41,000 --> 00:42,000
+Fingers Grasp 0.000 tosnap child of.e To control the rig, you need to switch to pose mode Fnd
+
+36
+00:42,000 --> 00:43,000
+Fingers Grasp 0.000 tosnap child of.e To control the rig, you need to switch to pose mode Fnd
+
+37
+00:43,000 --> 00:44,000
+Fingers Grasp 0.000 Snap.Child of.oo To control the rig, you need to switch to pose mode Fnd
+
+38
+00:44,000 --> 00:45,000
+Fingers Grasp 0.000 Snap.Child of.oo To control the rig, you need to switch to pose mode Fnd
+
+39
+00:45,000 --> 00:46,000
+FingersGrasp 0.000 SnapChild of.oo To control the rig, you need to switch to pose mode 4 Fnd
+
+40
+00:46,000 --> 00:47,000
+FingersGrasp 0.000 SnapChildof.o To control the rig, you need to switch to pose mode
+
+41
+00:47,000 --> 00:48,000
+Now you can adjust the pose HATT Fingers Grasp 0.000 LoSnapChild of..o RecetAllPose Pcke Fnd
+
+42
+00:48,000 --> 00:49,000
+Aot Now you can adjust the pose HAT Fingers Grasp 0.000 LSnapChild of.0 e AllPos Picke HonModi Fnd100 Sa End
+
+43
+00:49,000 --> 00:50,000
+Aot Now you can adjust the pose HAT Fingers Grasp 0.000 LSnapChild of.0 e AllPos Picke HonModi Fnd100 Sa End
+
+44
+00:50,000 --> 00:51,000
+Aot Now you can adjust the pose HATN FingersGrasp 0.000 LSnapChild of.0 Pck End100 AllPos Sa Fnd
+
+45
+00:51,000 --> 00:52,000
+Now you can adjust the pose HAP FingersGrasp 0.000 LSnapChildof.0 AllPos Picke tionMoc End100 Star Fnd
+
+46
+00:52,000 --> 00:53,000
+Now you can adjust the pose RotationMode
+
+47
+00:53,000 --> 00:54,000
+Now you can adjust the pose RotationMode
+
+48
+00:54,000 --> 00:55,000
+Now you can adjust the pose 4 Roonooe
+
+49
+00:55,000 --> 00:56,000
+Now you can adjust the pose 4 FingersGrasp 0.000 taSnapChildofo Pakoe AllPos Fod
+
+50
+00:56,000 --> 00:57,000
+Now you can adjust the pose 4 FingersGrasp 0.000 taSnapChildof.o >Picke End100 AllPos Fod
+
+51
+00:57,000 --> 00:58,000
+Now you can adjust the pose FingersGrasp 0.000 taSnapChild of.o >Picke Ed Pos Fod
+
+52
+00:58,000 --> 00:59,000
+Now you can adjust the pose HATN FingersGrasp 0.000 LSnapChild Of.0 AllPose >Picke onMor Fd100 S Fod
+
+53
+00:59,000 --> 01:00,000
+Now you can adjust the pose 4
+
+54
+01:00,000 --> 01:01,000
+Now you can adjust the pose
+
+55
+01:01,000 --> 01:02,000
+Now you can adjust the pose
+
+56
+01:02,000 --> 01:03,000
+Now you can adjust the pose
+
+57
+01:03,000 --> 01:04,000
+Now you can adjust the pose
+
+58
+01:04,000 --> 01:05,000
+Now you can adjust the pose
+
+59
+01:05,000 --> 01:06,000
+Now you can adjust the pose Fingers Grasp 0.000 TeSnapChildofoo Pc nd100 Fnd
+
+60
+01:06,000 --> 01:07,000
+Now you can adjust the pose Fingers.Grasp 0.000 taSnapChild of.oo AlPose Picke tonMode Fnd100 Stad End
+
+61
+01:07,000 --> 01:08,000
+Now you can adjust the pose Fingers.Grasp 0.000 taSnapChild of.oo AlPose Picke tonMode Fnd100 Stad End
+
+62
+01:08,000 --> 01:09,000
+Now you can adjust the pose Fingers.Grasp 0.000 taSnapChild of.oo Pel End100 AlPos Fod
+
+63
+01:09,000 --> 01:10,000
+Now you can adjust the pose HAT a Fingers.Grasp 0.000 taSnapChildof.oo eetAlPose Picke otathonMode Fnd100 Stad End
+
+64
+01:10,000 --> 01:11,000
+Now you can adjust the pose HAT a Fingers.Grasp 0.000 taSnapChildof.oo eetAlPose Picke otathonMode Fnd100 Stad End
+
+65
+01:11,000 --> 01:12,000
+Now you can adjust the pose 4 Fingers Grasp 0.000 toSnapChildof.o Re AllPose Picke tionMoc Fnd100 Sa End
+
+66
+01:12,000 --> 01:13,000
+Nowyou can adjustthepose
+
+67
+01:13,000 --> 01:14,000
+Now you can adjust the pose
+
+68
+01:15,000 --> 01:16,000
+Now you can adjust the pose
+
+69
+01:16,000 --> 01:17,000
+Now you can adjust the pose
+
+70
+01:17,000 --> 01:18,000
+ResetAPos Don't forget to install the rig tools 3.68.12.zip included in 00 the@owr blenderaddor
+
+71
+01:18,000 --> 01:19,000
+esetAPos Don't forget to install the rig tools 3.68.12.zip included in the@ownloadeefilein rblenderaaddor 100
+
+72
+01:19,000 --> 01:20,000
+eeea Pn Don't forget to install the rig tools 3.68.12.zip includedin thedownloadeg'fileint Urbleneraddor
+
+73
+01:20,000 --> 01:21,000
+eeea Pn Don't forget to install the rig tools 3.68.12.zip includedin the@ownloadeefilein Urbleneeraddor
+
+74
+01:21,000 --> 01:22,000
+eeea Pn Don't forget to install the rig tools 3.68.12.zip included in thedownloaeeerfilei rblenderaaddor
+
+75
+01:22,000 --> 01:23,000
+etA en Don't forget to install the rig tools 3.68.12.zip included in thedownloaaerfilein rblen@erzaddor 100 Stat
+
+76
+01:23,000 --> 01:24,000
+etA en Don't forget to install the rig tools 3.68.12.zip included in thedownloaaerfilein rblen@erzaddor 100 Stat
+
+77
+01:24,000 --> 01:25,000
+eeetAll n Don't forget to install the rig tools 3.68.12.zip includedin the downloaeeerfilein rblen@erzaddor 100 Start
+
+78
+01:26,000 --> 01:27,000
+etA en Don't forget to install the rig tools 3.68.12.zip included in thedownloaaerfilein rblen@erzaddor 100 Start
+
+79
+01:27,000 --> 01:28,000
+Don't forget to install the rig tools 3.68.12.zip included in thedownloaderfilein rblen@erzaddor 100Start
+
+80
+01:28,000 --> 01:29,000
+Don't forget to install the rig tools 3.68.12.zip included in thedownloaderfilein rblen@erzaddor 100Sa
+
+81
+01:29,000 --> 01:30,000
+Fingers Grasp 0.000 esnapChilid ofe Don't forget to install the rig tools 3.68.12.zip included in the@downloadeerfilein rhlonderaaddor
+
+82
+01:30,000 --> 01:31,000
+o 3.10 120 130 40 150 e 170 29 200 210 Start 220 230 Fingers Grasp 0.000 SnapChildof eAlPose Picke PotathooMode End100 240 Star 35 Eod
+
+83
+01:31,000 --> 01:32,000
+o 3.10 120 130 40 150 160 170 29 200 210 Start 220 230 Fingers Grasp 0.000 SnapChildof eAlPose Picke PotathooMode End100 240 Star 35 Eod
+
+84
+01:32,000 --> 01:33,000
+110 210 e Fingers Grasp 0.000 SnapChild of.. ResetAllPose >Picke otationMode End100 Stad Fod
+
+85
+01:37,000 --> 01:38,000
+HAT工
