@@ -32,6 +32,7 @@ Perfect for content creators, translators, and anyone needing to extract text fr
 
 ## 📸 Screenshots
 
+![alt text](docs/img/1.png)
 *Application interface showing video player, OCR settings, and subtitle timeline*
 
 ## 🛠️ Quick Start
@@ -46,7 +47,7 @@ Perfect for content creators, translators, and anyone needing to extract text fr
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/subocr.git
+   git clone https://github.com/gasdyueer/subocr.git
    cd subocr
    ```
 
@@ -194,8 +195,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/subocr/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/subocr/discussions)
+- **Issues**: [GitHub Issues](https://github.com/gasdyueer/subocr/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/gasdyueer/subocr/discussions)
 - **Email**: your.email@example.com
 
 ---
