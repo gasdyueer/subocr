@@ -5,16 +5,21 @@ const BACKEND_CONFIGS = {
   'umi-ocr': {
     defaultEndpoint: 'http://localhost:1224',
     healthCheckPath: '/api/ocr/get_options',
+    ocrPath: '/api/ocr',
     name: 'Umi-OCR服务'
   },
   'lmstudio': {
     defaultEndpoint: 'http://localhost:1234',
-    healthCheckPath: '/api/tags',
-    name: 'lmstudio服务'
+    healthCheckPath: '/api/v1/models',
+    ocrPath: '/api/v1/chat',
+    alternativeHealthCheckPaths: ['/api/tags', '/v1/models', '/api/models'],
+    alternativeOcrPaths: ['/api/generate', '/api/v1/chat/completions', '/v1/chat/completions'],
+    name: 'LM Studio服务'
   },
   'tesseract': {
     defaultEndpoint: 'local',
     healthCheckPath: '',
+    ocrPath: '',
     name: 'Tesseract本地OCR'
   }
 };
@@ -55,20 +60,48 @@ export async function checkUmiOcrHealth(endpoint: string): Promise<boolean> {
   }
 }
 
-// lmstudio健康检查
+// 获取LM Studio配置
+function getLmstudioConfig() {
+  return BACKEND_CONFIGS.lmstudio;
+}
+
+// lmstudio健康检查 - 支持多端点回退
 export async function checkLmstudioHealth(endpoint: string): Promise<boolean> {
-  try {
-    const res = await fetch(`${endpoint}/api/tags`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    return res.ok;
-  } catch (e) {
-    console.error("LM Studio health check failed:", e);
-    return false;
+  const config = getLmstudioConfig();
+  const testEndpoints = [
+    config.healthCheckPath,
+    ...(config.alternativeHealthCheckPaths || [])
+  ].filter(Boolean);
+
+  console.log(`[LM Studio] Testing health check endpoints: ${testEndpoints.join(', ')}`);
+
+  for (const path of testEndpoints) {
+    try {
+      const url = `${endpoint}${path}`;
+      console.log(`[LM Studio] Testing endpoint: ${url}`);
+
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: AbortSignal.timeout(5000) // 5秒超时
+      });
+
+      if (res.ok) {
+        console.log(`[LM Studio] Health check successful using ${path}`);
+        return true;
+      } else {
+        console.log(`[LM Studio] Health check failed for ${path}: ${res.status} ${res.statusText}`);
+      }
+    } catch (e: any) {
+      console.log(`[LM Studio] Health check error for ${path}:`, e.message);
+      // 继续尝试下一个端点
+    }
   }
+
+  console.error("[LM Studio] Health check failed for all endpoints");
+  return false;
 }
 
 // 获取Umi-OCR参数选项
@@ -135,28 +168,65 @@ export async function fetchUmiOcrModels(endpoint: string): Promise<string[]> {
   }
 }
 
-// LM Studio模型获取（模拟实现，目前使用Umi-OCR）
+// LM Studio模型获取 - 支持多端点回退
 export async function fetchLmstudioModels(endpoint: string): Promise<string[]> {
-  console.warn("fetchLmstudioModels is deprecated, using Umi-OCR instead");
-  try {
-    const options = await fetchUmiOcrOptions(endpoint);
-    const models: string[] = [];
-    
-    if (options['ocr.language'] && options['ocr.language'].optionsList) {
-      options['ocr.language'].optionsList.forEach(([value, label]) => {
-        models.push(`Umi-OCR: ${label}`);
+  const config = getLmstudioConfig();
+  const testEndpoints = [
+    config.healthCheckPath,
+    ...(config.alternativeHealthCheckPaths || [])
+  ].filter(Boolean);
+
+  console.log(`[LM Studio] Fetching models from endpoints: ${testEndpoints.join(', ')}`);
+
+  let lastError: Error | null = null;
+
+  for (const path of testEndpoints) {
+    try {
+      const url = `${endpoint}${path}`;
+      console.log(`[LM Studio] Trying models endpoint: ${url}`);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: AbortSignal.timeout(5000)
       });
+
+      if (!response.ok) {
+        throw new Error(`LM Studio models fetch failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const models: string[] = [];
+
+      // LM Studio响应格式: { models: [{ key: "glm-ocr", display_name: "GLM OCR", ... }, ...] }
+      if (data.models && Array.isArray(data.models)) {
+        for (const model of data.models) {
+          if (model.key && model.display_name) {
+            // 添加模型标识
+            models.push(`LM Studio: ${model.display_name} (${model.key})`);
+          }
+        }
+      }
+
+      // 如果没有找到模型，返回默认模型
+      if (models.length === 0) {
+        models.push('LM Studio: glm-ocr (default)');
+      }
+
+      console.log(`[LM Studio] Found ${models.length} models from ${path}`);
+      return models;
+    } catch (e: any) {
+      console.log(`[LM Studio] Failed to fetch models from ${path}:`, e.message);
+      lastError = e;
+      // 继续尝试下一个端点
     }
-    
-    // 如果没有找到语言选项，返回默认模型
-    if (models.length === 0) {
-      models.push('Umi-OCR: PaddleOCR (默认)');
-    }
-    
-    return models;
-  } catch (e) {
-    return ['Umi-OCR: PaddleOCR (默认)'];
   }
+
+  console.error("[LM Studio] Failed to fetch models from all endpoints", lastError);
+  // 返回默认的glm-ocr模型
+  return ['LM Studio: glm-ocr (default)'];
 }
 
 // 处理Umi-OCR响应并转换为纯文本
@@ -238,8 +308,109 @@ function processUmiOcrResponse(response: UmiOcrResponse): string {
   return result;
 }
 
-// 增强的OCR识别函数，支持超时和重试
-export async function performOcrWithRetry(
+// LM Studio OCR识别
+async function performLmstudioOcr(
+  imageDataBase64: string,
+  config: OcrConfig,
+  timeoutMs: number = 30000
+): Promise<string> {
+  // 移除data URL前缀（如果存在）
+  const base64Data = imageDataBase64.replace(/^data:image\/\w+;base64,/, "");
+
+  // 获取LM Studio配置
+  const lmstudioConfig = getLmstudioConfig();
+  const ocrPath = lmstudioConfig.ocrPath || '/api/v1/chat';
+  const ocrUrl = `${config.apiEndpoint}${ocrPath}`;
+
+  console.log(`[LM Studio] Sending request to endpoint: ${ocrUrl}, timeout: ${timeoutMs}ms`);
+
+  // 从模型显示名称中提取模型key
+  // 格式可能是: "LM Studio: GLM OCR (glm-ocr)" 或 "glm-ocr"
+  let modelKey = config.model;
+  if (modelKey.includes('(') && modelKey.includes(')')) {
+    // 提取括号内的内容
+    const match = modelKey.match(/\(([^)]+)\)/);
+    if (match) {
+      modelKey = match[1];
+    }
+  }
+  // 如果提取失败或格式不正确，使用原始值
+  console.log(`[LM Studio] Using model key: ${modelKey}`);
+
+  // 构建LM Studio请求参数
+  const requestBody = {
+    model: modelKey, // 使用提取的模型key
+    input: [
+      {
+        type: "text",
+        content: "提取图像中的所有文本，只返回文本，不要额外解释。"
+      },
+      {
+        type: "image",
+        data_url: `data:image/png;base64,${base64Data}`
+      }
+    ],
+    stream: false,
+    temperature: 0.1,
+    max_output_tokens: 1000
+  };
+
+  // 创建AbortController用于超时控制
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(ocrUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      throw new Error(`LM Studio API error: ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+
+    // 提取响应文本
+    // LM Studio响应格式: { output: [{ type: "message", content: "..." }, ...] }
+    if (data.output && Array.isArray(data.output)) {
+      // 查找类型为"message"的输出
+      const message = data.output.find((item: any) => item.type === "message");
+      if (message && message.content) {
+        const text = message.content.trim();
+        console.log(`[LM Studio] Text result (${text.length} chars): "${text.substring(0, 100)}${text.length > 100 ? '...' : ''}"`);
+        return text;
+      }
+      // 如果没有message，尝试其他输出类型
+      const firstOutput = data.output[0];
+      if (firstOutput && firstOutput.content) {
+        const text = firstOutput.content.trim();
+        console.log(`[LM Studio] Text result from first output (${text.length} chars): "${text.substring(0, 100)}${text.length > 100 ? '...' : ''}"`);
+        return text;
+      }
+    }
+
+    // 如果无法提取文本，返回原始响应用于调试
+    console.warn(`[LM Studio] Unexpected response format:`, data);
+    throw new Error(`Unexpected response format from LM Studio`);
+  } catch (fetchError: any) {
+    clearTimeout(timeoutId);
+
+    if (fetchError.name === 'AbortError') {
+      throw new Error(`LM Studio request timeout after ${timeoutMs}ms`);
+    }
+    throw fetchError;
+  }
+}
+
+// Umi-OCR重试逻辑
+async function performUmiOcrWithRetry(
   imageDataBase64: string,
   config: OcrConfig,
   timeoutMs: number = 30000,
@@ -247,11 +418,11 @@ export async function performOcrWithRetry(
 ): Promise<string> {
   // 移除data URL前缀（如果存在）
   const base64Data = imageDataBase64.replace(/^data:image\/\w+;base64,/, "");
-  
+
   console.log(`[Umi-OCR] Sending request to endpoint: ${config.apiEndpoint}, timeout: ${timeoutMs}ms`);
-  
+
   let lastError: Error | null = null;
-  
+
   for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
     try {
       // 构建Umi-OCR请求参数
@@ -262,11 +433,11 @@ export async function performOcrWithRetry(
           "ocr.language": "models/config_chinese.txt", // 默认使用中文
         }
       };
-      
+
       // 创建AbortController用于超时控制
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-      
+
       try {
         const res = await fetch(`${config.apiEndpoint}/api/ocr`, {
           method: 'POST',
@@ -284,12 +455,12 @@ export async function performOcrWithRetry(
         }
 
         const data: UmiOcrResponse = await res.json();
-        
+
         // 处理Umi-OCR响应
         return processUmiOcrResponse(data);
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
-        
+
         if (fetchError.name === 'AbortError') {
           throw new Error(`Umi-OCR request timeout after ${timeoutMs}ms`);
         }
@@ -297,7 +468,7 @@ export async function performOcrWithRetry(
       }
     } catch (e: any) {
       lastError = e;
-      
+
       if (attempt <= maxRetries) {
         const retryDelay = 1000 * attempt; // 指数退避
         console.warn(`[Umi-OCR] Attempt ${attempt} failed: ${e.message}. Retrying in ${retryDelay}ms...`);
@@ -305,10 +476,33 @@ export async function performOcrWithRetry(
       }
     }
   }
-  
+
   // 所有重试都失败
   console.error(`[Umi-OCR] All ${maxRetries + 1} attempts failed`);
   throw lastError || new Error('Umi-OCR recognition failed after all retries');
+}
+
+// 增强的OCR识别函数，支持超时和重试
+export async function performOcrWithRetry(
+  imageDataBase64: string,
+  config: OcrConfig,
+  timeoutMs: number = 30000,
+  maxRetries: number = 2
+): Promise<string> {
+  // 根据OCR后端类型选择不同的处理逻辑
+  const { ocrBackend } = config;
+
+  switch (ocrBackend) {
+    case 'umi-ocr':
+      return performUmiOcrWithRetry(imageDataBase64, config, timeoutMs, maxRetries);
+    case 'lmstudio':
+      return performLmstudioOcr(imageDataBase64, config, timeoutMs);
+    case 'tesseract':
+      // TODO: 实现Tesseract本地OCR
+      throw new Error('Tesseract backend not yet implemented');
+    default:
+      throw new Error(`Unknown OCR backend: ${ocrBackend}`);
+  }
 }
 
 // 向后兼容：保持原有函数签名，内部使用增强版本

@@ -8,7 +8,8 @@
       "Bash(npx tsx test-ocr-rules.js)",
       "Bash(npx tsc --noEmit)",
       "Bash(node test-deduplication.js)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(curl -X POST http://127.0.0.1:1234/api/generate -H \"Content-Type: application/json\" -d \"{\"\"model\"\": \"\"glm-ocr\"\", \"\"prompt\"\": \"\"test\"\", \"\"stream\"\": false}\")"
     ]
   }
 }

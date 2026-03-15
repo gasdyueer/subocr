@@ -1,7 +1,6 @@
 /// <reference lib="webworker" />
 
 import { OcrConfig } from '../types';
-import { performOcrWithRetry } from '../lib/ocrApi';
 
 export type OcrWorkerMessage = 
   | { type: 'OCR_REQUEST'; payload: OcrRequestPayload; id: string }
@@ -38,7 +37,7 @@ export interface OcrResult {
   confidence?: number;
 }
 
-// OCR处理函数（使用统一OCR API）
+// OCR处理函数（模拟或实际调用API）
 async function processOcrRequest(
   imageData: string,
   config: OcrConfig,
@@ -46,59 +45,125 @@ async function processOcrRequest(
   requestId: string
 ): Promise<OcrResult> {
   const startTime = performance.now();
-
+  
   try {
-    console.log(`[OCR Worker] Starting OCR request ${requestId}, backend: ${config.ocrBackend}, endpoint: ${config.apiEndpoint}`);
-
-    // 移除data URL前缀（如果存在） - 保持与ocrApi.ts一致
-    const imageDataForApi = imageData.replace(/^data:image\/\w+;base64,/, "");
-
-    // 使用统一的OCR API
-    const text = await performOcrWithRetry(
-      imageDataForApi,
-      config,
-      30000, // 30秒超时
-      2      // 最大重试次数
-    );
-
+    console.log(`[OCR Worker] Starting OCR request ${requestId}, timestamp: ${timestamp}, endpoint: ${config.apiEndpoint}`);
+    
+    // 移除data URL前缀（如果存在）
+    const base64Data = imageData.replace(/^data:image\/\w+;base64,/, "");
+    
+    // 构建Umi-OCR请求参数
+    const requestBody = {
+      base64: base64Data,
+      options: {
+        "data.format": "text", // 返回纯文本格式
+        "ocr.language": "models/config_chinese.txt", // 默认使用中文
+      }
+    };
+    
+    console.log(`[OCR Worker] Sending request to Umi-OCR at ${config.apiEndpoint}/api/ocr`);
+    
+    // 设置超时
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超时
+    
+    const response = await fetch(`${config.apiEndpoint}/api/ocr`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      console.error(`[OCR Worker] API error: ${response.status} ${response.statusText}`);
+      throw new Error(`OCR API error: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
     const processingTime = performance.now() - startTime;
-
-    // 验证和清理文本（保持现有逻辑）
-    let cleanedText = typeof text === 'string' ? text : String(text || '');
-    cleanedText = cleanedText.trim().replace(/\s+/g, ' ');
-
+    
+    console.log(`[OCR Worker] Received response for ${requestId}, code: ${data.code}, processing time: ${processingTime.toFixed(2)}ms`);
+    
+    // 处理Umi-OCR响应
+    let text = '';
+    let confidence = 0;
+    
+    if (data.code === 100) {
+      // 识别成功
+      if (typeof data.data === 'string') {
+        text = data.data.trim();
+        console.log(`[OCR Worker] Text result (string): ${text.substring(0, 50)}...`);
+      } else if (Array.isArray(data.data)) {
+        // 字典格式，拼接文本
+        text = data.data
+          .map((item: any) => item.text || '')
+          .join('')
+          .trim();
+        
+        console.log(`[OCR Worker] Text result (array): ${text.substring(0, 50)}...`);
+        
+        // 计算平均置信度
+        const scores = data.data
+          .filter((item: any) => typeof item.score === 'number')
+          .map((item: any) => item.score);
+        
+        if (scores.length > 0) {
+          confidence = scores.reduce((a: number, b: number) => a + b, 0) / scores.length;
+        }
+      }
+    } else if (data.code === 101) {
+      // 无文本
+      text = '';
+    } else {
+      // 识别失败
+      const errorMsg = typeof data.data === 'string' ? data.data : 'Unknown error';
+      throw new Error(`OCR recognition failed with code ${data.code}: ${errorMsg}`);
+    }
+    
+    // 验证结果完整性
+    if (typeof text !== 'string') {
+      console.warn(`[OCR Worker] Invalid text type: ${typeof text}, converting to string`);
+      text = String(text || '');
+    }
+    
+    // 清理文本：移除多余空格和换行符
+    text = text.trim().replace(/\s+/g, ' ');
+    
     // 验证必要字段
     if (typeof timestamp !== 'number' || isNaN(timestamp)) {
       console.warn(`[OCR Worker] Invalid timestamp: ${timestamp}, using default`);
       timestamp = 0;
     }
-
+    
     if (typeof requestId !== 'string' || !requestId) {
       console.warn(`[OCR Worker] Invalid requestId: ${requestId}, generating new one`);
       requestId = `ocr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
-
-    // 构建结果对象
-    const result: OcrResult = {
-      text: cleanedText,
+    
+    const result = {
+      text,
       timestamp,
       requestId,
       processingTime,
-      confidence: 0 // 统一API不返回置信度，设为0
+      confidence
     };
-
-    console.log(`[OCR Worker] Request ${requestId} completed, text length: ${cleanedText.length}, time: ${processingTime.toFixed(2)}ms`);
-
+    
+    console.log(`[OCR Worker] Validated result for ${requestId}: text length=${text.length}, timestamp=${timestamp}`);
+    
     return result;
-
+    
   } catch (error) {
     const processingTime = performance.now() - startTime;
-
-    // 错误处理（保持现有逻辑）
+    
+    // 重试逻辑（简化版）
     if (error instanceof Error && error.name === 'AbortError') {
       throw new Error(`OCR request timeout after 30s`);
     }
-
+    
     throw error;
   }
 }

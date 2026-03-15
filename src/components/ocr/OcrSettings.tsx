@@ -86,7 +86,11 @@ export function OcrSettings() {
             '1. 安装 LM Studio（从官网下载安装）',
             '2. 启动 LM Studio 应用程序',
             '3. 在 LM Studio 中加载 glm-ocr 模型',
-            '4. 启动本地服务器并确保运行在端口 1234'
+            '4. 启动本地服务器并确保运行在端口 1234',
+            '5. CORS配置（重要）：如果连接失败，请尝试：',
+            '   - 在LM Studio设置中启用CORS支持，或',
+            '   - 使用浏览器扩展允许跨域请求，或',
+            '   - 确保使用正确的API端点（推荐使用 /api/lmstudio）'
           ],
           downloadUrl: 'https://lmstudio.ai/'
         };
@@ -140,7 +144,8 @@ export function OcrSettings() {
             onClick={() => setConfig({
               ocrBackend: 'umi-ocr',
               apiEndpoint: 'http://localhost:1224',
-              serviceName: 'Umi-OCR服务'
+              serviceName: 'Umi-OCR服务',
+              model: 'Umi-OCR: PaddleOCR (默认)'
             })}
             className={cn(
               "p-3 rounded-lg border text-sm font-medium transition-all",
@@ -154,8 +159,9 @@ export function OcrSettings() {
           <button
             onClick={() => setConfig({
               ocrBackend: 'lmstudio',
-              apiEndpoint: 'http://localhost:1234',
-              serviceName: 'LM Studio服务'
+              apiEndpoint: '/api/lmstudio', // 使用代理路径解决CORS问题
+              serviceName: 'LM Studio服务',
+              model: 'glm-ocr'
             })}
             className={cn(
               "p-3 rounded-lg border text-sm font-medium transition-all",
@@ -170,7 +176,8 @@ export function OcrSettings() {
             onClick={() => setConfig({
               ocrBackend: 'tesseract',
               apiEndpoint: 'local',
-              serviceName: 'Tesseract本地OCR'
+              serviceName: 'Tesseract本地OCR',
+              model: 'Tesseract: 简体中文'
             })}
             className={cn(
               "p-3 rounded-lg border text-sm font-medium transition-all",
@@ -205,7 +212,7 @@ export function OcrSettings() {
             value={config.apiEndpoint}
             onChange={(e) => setConfig({ apiEndpoint: e.target.value })}
             className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-            placeholder={config.ocrBackend === 'umi-ocr' ? "http://localhost:1224" : "http://localhost:1234"}
+            placeholder={config.ocrBackend === 'umi-ocr' ? "http://localhost:1224" : "/api/lmstudio 或 http://localhost:1234"}
           />
           <button
             onClick={checkHealth}
