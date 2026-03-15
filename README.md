@@ -14,13 +14,13 @@
 
 ## 🚀 Overview
 
-SubOCR is a professional-grade web application that automates the extraction of subtitles from video files. It leverages multiple OCR backends (Umi-OCR, Ollama, Tesseract) with AI-powered correction and optimization to produce accurate, time-synchronized subtitle files.
+SubOCR is a professional-grade web application that automates the extraction of subtitles from video files. It leverages multiple OCR backends (Umi-OCR, LM Studio, Tesseract) with AI-powered correction and optimization to produce accurate, time-synchronized subtitle files.
 
 Perfect for content creators, translators, and anyone needing to extract text from videos with minimal manual effort.
 
 ## ✨ Features
 
-- **Multi-OCR Backend Support**: Choose between Umi-OCR, Ollama, or Tesseract for text recognition
+- **Multi-OCR Backend Support**: Choose between Umi-OCR, LM Studio, or Tesseract for text recognition
 - **Smart Subtitle Optimization**: Automatic deduplication, merging, and continuity correction
 - **AI-Powered Correction**: Custom rule-based text correction with default patterns for common OCR errors
 - **Real-time Processing**: Live progress tracking with detailed logs and statistics
@@ -41,7 +41,7 @@ Perfect for content creators, translators, and anyone needing to extract text fr
 
 - **Node.js** (v18 or later)
 - **npm** or **yarn** or **bun**
-- **OCR Backend** (Umi-OCR, Ollama, or Tesseract - at least one must be running)
+- **OCR Backend** (Umi-OCR, LM Studio, or Tesseract - at least one must be running)
 
 ### Installation
 
@@ -83,11 +83,11 @@ SubOCR supports three OCR backends. You need to have at least one running:
 2. Ensure it's running on `http://localhost:1224` (default)
 3. In SubOCR settings, select "Umi-OCR" as the backend
 
-#### Option 2: Ollama
-1. Install [Ollama](https://ollama.ai/)
-2. Pull an OCR model: `ollama pull glm-ocr`
-3. Ensure Ollama is running on `http://localhost:11434`
-4. In SubOCR settings, select "Ollama" as the backend
+#### Option 2: LM Studio
+1. Install [LM Studio](https://lmstudio.ai/)
+2. Load the glm-ocr model in LM Studio application
+3. Ensure LM Studio server is running on `http://localhost:1234`
+4. In SubOCR settings, select "LM Studio" as the backend
 
 #### Option 3: Tesseract
 1. Install Tesseract OCR on your system
@@ -188,7 +188,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgements
 
 - [Umi-OCR](https://github.com/hiroi-sora/Umi-OCR) - Excellent OCR engine
-- [Ollama](https://ollama.ai/) - Local LLM/OCR hosting
+- [LM Studio](https://lmstudio.ai/) - Local LLM/OCR hosting
 - [React](https://react.dev/) - UI library
 - [Vite](https://vitejs.dev/) - Build tool
 - [Tailwind CSS](https://tailwindcss.com/) - Styling framework

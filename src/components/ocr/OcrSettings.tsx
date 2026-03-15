@@ -79,16 +79,16 @@ export function OcrSettings() {
           ],
           downloadUrl: 'https://github.com/hiroi-sora/Umi-OCR/releases'
         };
-      case 'ollama':
+      case 'lmstudio':
         return {
-          title: 'Ollama 服务启动指南',
+          title: 'LM Studio 服务启动指南',
           steps: [
-            '1. 安装 Ollama（从官网下载安装）',
-            '2. 在终端运行: ollama serve',
-            '3. 下载 OCR 模型: ollama pull llava',
-            '4. 确保服务运行在端口 11434'
+            '1. 安装 LM Studio（从官网下载安装）',
+            '2. 启动 LM Studio 应用程序',
+            '3. 在 LM Studio 中加载 glm-ocr 模型',
+            '4. 启动本地服务器并确保运行在端口 1234'
           ],
-          downloadUrl: 'https://ollama.com/download'
+          downloadUrl: 'https://lmstudio.ai/'
         };
       case 'tesseract':
         return {
@@ -153,18 +153,18 @@ export function OcrSettings() {
           </button>
           <button
             onClick={() => setConfig({
-              ocrBackend: 'ollama',
-              apiEndpoint: 'http://localhost:11434',
-              serviceName: 'Ollama服务'
+              ocrBackend: 'lmstudio',
+              apiEndpoint: 'http://localhost:1234',
+              serviceName: 'LM Studio服务'
             })}
             className={cn(
               "p-3 rounded-lg border text-sm font-medium transition-all",
-              config.ocrBackend === 'ollama'
+              config.ocrBackend === 'lmstudio'
                 ? "bg-purple-500/10 text-purple-400 border-purple-500/30"
                 : "bg-zinc-900 border-zinc-800 hover:bg-zinc-800"
             )}
           >
-            Ollama
+            LM Studio
           </button>
           <button
             onClick={() => setConfig({
@@ -205,7 +205,7 @@ export function OcrSettings() {
             value={config.apiEndpoint}
             onChange={(e) => setConfig({ apiEndpoint: e.target.value })}
             className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-            placeholder={config.ocrBackend === 'umi-ocr' ? "http://localhost:1224" : "http://localhost:11434"}
+            placeholder={config.ocrBackend === 'umi-ocr' ? "http://localhost:1224" : "http://localhost:1234"}
           />
           <button
             onClick={checkHealth}

@@ -9,25 +9,25 @@
 
 ### 1. 修改OCR配置支持多种后端 ✅
 - 扩展`OcrConfig`类型，添加`ocrBackend`和`serviceName`字段
-- 支持三种OCR后端：`umi-ocr`、`ollama`、`tesseract`
+- 支持三种OCR后端：`umi-ocr`、`lmstudio`、`tesseract`
 - 更新默认配置，使用Umi-OCR作为默认后端
 
 ### 2. 添加服务健康检查功能 ✅
 - 实现通用健康检查函数`checkOcrHealth(config)`
 - 根据后端类型执行不同的健康检查：
   - Umi-OCR: 检查`/api/ocr/get_options`端点
-  - Ollama: 检查`/api/tags`端点  
+  - LM Studio: 检查`/api/tags`端点  
   - Tesseract: 始终返回true（本地库）
 - 添加详细的错误日志和状态反馈
 
 ### 3. 改进UI错误提示和用户引导 ✅
 - 在OCR设置界面显示清晰的服务状态（在线/离线）
 - 添加服务启动指南，根据后端类型显示不同的安装和启动步骤
-- 提供软件下载链接（Umi-OCR、Ollama）
+- 提供软件下载链接（Umi-OCR、LM Studio）
 - 改进错误提示，提供具体的故障排除建议
 
 ### 4. 添加OCR服务配置界面 ✅
-- 添加OCR后端选择按钮（Umi-OCR、Ollama、Tesseract）
+- 添加OCR后端选择按钮（Umi-OCR、LM Studio、Tesseract）
 - 实时更新API端点占位符和默认值
 - 添加"服务启动指南"切换按钮
 - 界面完全中文化，提高用户体验
@@ -52,7 +52,7 @@
 4. **`src/components/ocr/OcrSettings.tsx`** - 完全重写UI组件
 
 ### 新增功能
-- **后端切换**: 用户可以在Umi-OCR、Ollama和Tesseract之间切换
+- **后端切换**: 用户可以在Umi-OCR、LM Studio和Tesseract之间切换
 - **服务指南**: 详细的安装和启动指南，包含下载链接
 - **健康检查**: 自动检测服务状态，提供实时反馈
 - **错误处理**: 友好的错误提示和故障排除建议
@@ -96,7 +96,7 @@
    - 点击"开始识别"使用OCR功能
 
 3. **备用方案**:
-   - 如果Umi-OCR不可用，可切换到Ollama或Tesseract
+   - 如果Umi-OCR不可用，可切换到LM Studio或Tesseract
    - 使用服务启动指南安装和配置备用服务
 
 ### 故障排除

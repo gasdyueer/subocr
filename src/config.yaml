@@ -4,9 +4,9 @@ pipeline:
   
   ocr_api:
     api_host: localhost
-    api_port: 11434
-    api_path: /api/generate  # Use Ollama native endpoint
-    model: glm-ocr:latest    # Required: specify model name
-    api_mode: ollama_generate  # Required: use Ollama native format
+    api_port: 1234
+    api_path: /api/generate  # Use LM Studio native endpoint
+    model: glm-ocr   # Required: specify model name
+    api_mode: lmstudio
   
   enable_layout: false  # Recommended for initial testing

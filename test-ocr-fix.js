@@ -69,7 +69,7 @@ fetch('http://localhost:1224/api/ocr/get_options')
   .finally(() => {
     console.log('\n=== 测试总结 ===');
     console.log('修复已完成的功能：');
-    console.log('✅ 1. 支持多种OCR后端配置（Umi-OCR、Ollama、Tesseract）');
+    console.log('✅ 1. 支持多种OCR后端配置（Umi-OCR、LM Studio、Tesseract）');
     console.log('✅ 2. 添加服务健康检查功能');
     console.log('✅ 3. 改进UI错误提示和用户引导');
     console.log('✅ 4. 添加OCR服务配置界面');

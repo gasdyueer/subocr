@@ -7,10 +7,10 @@ const BACKEND_CONFIGS = {
     healthCheckPath: '/api/ocr/get_options',
     name: 'Umi-OCR服务'
   },
-  'ollama': {
-    defaultEndpoint: 'http://localhost:11434',
+  'lmstudio': {
+    defaultEndpoint: 'http://localhost:1234',
     healthCheckPath: '/api/tags',
-    name: 'Ollama服务'
+    name: 'lmstudio服务'
   },
   'tesseract': {
     defaultEndpoint: 'local',
@@ -28,8 +28,8 @@ export async function checkOcrHealth(config: OcrConfig): Promise<boolean> {
   switch (ocrBackend) {
     case 'umi-ocr':
       return checkUmiOcrHealth(apiEndpoint);
-    case 'ollama':
-      return checkOllamaHealth(apiEndpoint);
+    case 'lmstudio':
+      return checkLmstudioHealth(apiEndpoint);
     case 'tesseract':
       // Tesseract始终可用（本地库）
       return true;
@@ -55,8 +55,8 @@ export async function checkUmiOcrHealth(endpoint: string): Promise<boolean> {
   }
 }
 
-// Ollama健康检查
-export async function checkOllamaHealth(endpoint: string): Promise<boolean> {
+// lmstudio健康检查
+export async function checkLmstudioHealth(endpoint: string): Promise<boolean> {
   try {
     const res = await fetch(`${endpoint}/api/tags`, {
       method: 'GET',
@@ -66,7 +66,7 @@ export async function checkOllamaHealth(endpoint: string): Promise<boolean> {
     });
     return res.ok;
   } catch (e) {
-    console.error("Ollama health check failed:", e);
+    console.error("LM Studio health check failed:", e);
     return false;
   }
 }
@@ -101,8 +101,8 @@ export async function fetchAvailableModels(config: OcrConfig): Promise<string[]>
   switch (ocrBackend) {
     case 'umi-ocr':
       return fetchUmiOcrModels(apiEndpoint);
-    case 'ollama':
-      return fetchOllamaModels(apiEndpoint);
+    case 'lmstudio':
+      return fetchLmstudioModels(apiEndpoint);
     case 'tesseract':
       return ['Tesseract: 简体中文', 'Tesseract: English', 'Tesseract: 日本語'];
     default:
@@ -135,9 +135,9 @@ export async function fetchUmiOcrModels(endpoint: string): Promise<string[]> {
   }
 }
 
-// 向后兼容的模型获取（模拟实现）
-export async function fetchOllamaModels(endpoint: string): Promise<string[]> {
-  console.warn("fetchOllamaModels is deprecated, using Umi-OCR instead");
+// LM Studio模型获取（模拟实现，目前使用Umi-OCR）
+export async function fetchLmstudioModels(endpoint: string): Promise<string[]> {
+  console.warn("fetchLmstudioModels is deprecated, using Umi-OCR instead");
   try {
     const options = await fetchUmiOcrOptions(endpoint);
     const models: string[] = [];

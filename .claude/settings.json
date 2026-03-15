@@ -7,7 +7,8 @@
       "Bash(xargs grep -l \"srt\\\\|SRT\\\\|subtitle\")",
       "Bash(npx tsx test-ocr-rules.js)",
       "Bash(npx tsc --noEmit)",
-      "Bash(node test-deduplication.js)"
+      "Bash(node test-deduplication.js)",
+      "Bash(xargs grep:*)"
     ]
   }
 }

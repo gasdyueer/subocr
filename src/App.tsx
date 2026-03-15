@@ -29,8 +29,8 @@ function App() {
           </span>
         </div>
         <div className="ml-auto flex items-center gap-4 text-sm text-zinc-400">
-          <a href="https://github.com/ollama/ollama" target="_blank" className="hover:text-white transition-colors">
-            Ollama
+          <a href="https://lmstudio.ai/" target="_blank" className="hover:text-white transition-colors">
+            LM Studio
           </a>
           <a href="#" className="hover:text-white transition-colors">
             Docs

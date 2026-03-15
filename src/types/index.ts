@@ -47,7 +47,7 @@ export interface OcrConfig {
   temperature: number;
   concurrency: number;
   interval: number;    // Seconds per frame
-  ocrBackend: 'umi-ocr' | 'ollama' | 'tesseract'; // OCR后端类型
+  ocrBackend: 'umi-ocr' | 'lmstudio' | 'tesseract'; // OCR后端类型
   serviceName: string; // 服务显示名称
 }
 
